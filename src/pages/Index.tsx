@@ -169,11 +169,41 @@ const Index = () => {
 
   const handleCopy = async () => {
     playClickSound(550);
-    await navigator.clipboard.writeText(currentUuid);
-    toast({
-      description: t.copied,
-      duration: 2000,
-    });
+    
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(currentUuid);
+      } else {
+        const textArea = document.createElement('textarea');
+        textArea.value = currentUuid;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+          document.execCommand('copy');
+          textArea.remove();
+        } catch (err) {
+          console.error('Fallback copy failed:', err);
+          textArea.remove();
+        }
+      }
+      
+      toast({
+        description: t.copied,
+        duration: 2000,
+      });
+    } catch (err) {
+      console.error('Copy failed:', err);
+      toast({
+        description: 'Copy failed',
+        duration: 2000,
+        variant: 'destructive'
+      });
+    }
   };
 
   const handleTypeChange = (value: string) => {
