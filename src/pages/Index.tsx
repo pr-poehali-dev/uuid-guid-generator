@@ -144,7 +144,7 @@ const Index = () => {
 
   const t = translations[language];
 
-  const playCheckSound = () => {
+  const playClickSound = (frequency: number = 400) => {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
@@ -152,44 +152,23 @@ const Index = () => {
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
     
-    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.08);
+    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
     
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.15);
-  };
-
-  const playGenerateSound = () => {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.3);
-    oscillator.frequency.exponentialRampToValueAtTime(450, audioContext.currentTime + 0.5);
-    
-    gainNode.gain.setValueAtTime(0.25, audioContext.currentTime);
-    gainNode.gain.setValueAtTime(0.25, audioContext.currentTime + 0.3);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.7);
+    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
     
     oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.7);
+    oscillator.stop(audioContext.currentTime + 0.1);
   };
 
   const handleGenerate = () => {
-    playGenerateSound();
+    playClickSound(400);
     const newUuid = uuidType === 'uuid-v4' ? generateUuidV4() : generateMicrosoftGuid();
     setCurrentUuid(newUuid);
   };
 
   const handleCopy = async () => {
-    playCheckSound();
+    playClickSound(550);
     await navigator.clipboard.writeText(currentUuid);
     toast({
       description: t.copied,
@@ -198,16 +177,22 @@ const Index = () => {
   };
 
   const handleTypeChange = (value: string) => {
+    playClickSound(400);
     setUuidType(value as UuidType);
     const newUuid = value === 'uuid-v4' ? generateUuidV4() : generateMicrosoftGuid();
     setCurrentUuid(newUuid);
+  };
+
+  const handleLanguageChange = (value: string) => {
+    playClickSound(400);
+    setLanguage(value as Language);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1a1a1a] to-[#2d2d2d] flex items-center justify-center p-4">
       <div className="w-full max-w-3xl">
         <div className="absolute top-6 right-6">
-          <Select value={language} onValueChange={(value) => setLanguage(value as Language)}>
+          <Select value={language} onValueChange={handleLanguageChange}>
             <SelectTrigger className="w-[160px] bg-gradient-to-r from-[#2d2d2d] to-[#404040] border-[#404040] text-white">
               <div className="flex items-center gap-2">
                 <Icon name="Globe" size={18} />
